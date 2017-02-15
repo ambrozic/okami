@@ -1,0 +1,57 @@
+div.sphinxsidebar ul {
+    margin: 5px 0 5px 10px;
+}
+
+div.footer {
+    text-align: left;
+    margin: 100px 0 100px 10%;
+    padding: 0 250px;
+    width: auto;
+}
+
+div.sphinxsidebar #searchbox {
+    margin-top: 10px;
+}
+
+div.sphinxsidebar #searchbox input[type="text"] {
+    width: 160px;
+}
+
+div.sphinxsidebarwrapper {
+    padding: 0 5px 0 10px;;
+}
+
+div.sphinxsidebarwrapper p.logo {
+    text-align: left;
+    margin: -10px 0 20px 0;
+}
+
+table.highlighttable td.code {
+    width: 100%;
+}
+
+body {
+    font-size: 16px;
+}
+
+div.body h1 {
+    font-size: 160%
+}
+
+div.body h2 {
+    font-size: 150%
+}
+
+div.body h3, div.sphinxsidebar h3 {
+    font-size: 140%
+}
+
+div.body h4, div.sphinxsidebar h4 {
+    font-size: 120%
+}
+
+@media screen and (max-width: 870px) {
+    ul {
+        margin-left: 20px;
+    }
+}

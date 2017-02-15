@@ -1,0 +1,11 @@
+!.editorconfig
+!.gitignore
+*.egg-info*
+*.py[cod]
+*.log
+*.conf
+*/.build
+bin/*
+build/*
+dist/*
+.coverage
