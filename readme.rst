@@ -59,7 +59,7 @@ Open http://localhost:8000/ and browse around a little. Quite a remarkable websi
 
   - ``OKAMI_SETTINGS=okami.configuration.example okami example spider``
 
-Our example spider started and you can monitor it processing pages. Take a look at example spider implementation `here </ambrozic/okami/blob/master/okami/spiders/example.py>`_.
+Our example spider started and you can monitor it processing pages. Take a look at example spider implementation `here </ambrozic/okami/blob/master/okami/example.py#L15>`_.
 
 |
 

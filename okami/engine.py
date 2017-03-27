@@ -170,7 +170,7 @@ class Controller:
 
                 await self.pipeline.stats.process(stats=await self.stats())
 
-            except (aiohttp.DisconnectedError, aiohttp.ClientError) as e:
+            except aiohttp.ClientError as e:
                 log.exception(e)
                 status = constants.status.RETRIAL
                 self.session.close()

@@ -1,13 +1,12 @@
 from setuptools import setup, find_packages
 
 requirements = [
-    "aiohttp==1.3.3",
-    "async-timeout==1.1.0",
+    "aiohttp==2.0.3",
+    "async-timeout==1.2.0",
     "chardet==2.3.0",
     "lxml==3.7.3",
     "multidict==2.1.4",
-    "setuptools==34.3.0",
-    "yarl==0.9.8",
+    "yarl==0.10.0",
 ]
 cluster_requirements = requirements + [
     "redis==2.10.5",
@@ -17,17 +16,18 @@ docs_requirements = requirements + [
     "alabaster==0.7.10",
 ]
 tests_requirements = requirements + [
-    "flake8==3.3.0",
     "codecov==2.0.5",
+    "flake8==3.3.0",
+    "markupsafe==1.0",
     "pytest-asyncio==0.5.0",
     "pytest-cov==2.4.0",
-    "pytest==3.0.6",
+    "pytest==3.0.7",
     "pyyaml==3.12",
 ]
 
 setup(
     name="okami",
-    version="0.1.4",
+    version="0.1.5",
     description="A high-level web scraping framework",
     author="ambrozic",
     author_email="ambrozic@gmail.com",

@@ -81,9 +81,9 @@ class BaseSpider:
         document = lxml.html.document_fromstring(html=response.text)
         urls = set()
         for xp in self.urls.get("allow", []):
-            urls |= {utils.parse_domain_url(domain=response.url, url=str(u)) for u in document.xpath(xp)}
+            urls |= {utils.parse_domain_url(domain=str(response.url), url=str(u)) for u in document.xpath(xp)}
         for xp in self.urls.get("avoid", []):
-            urls -= {utils.parse_domain_url(domain=response.url, url=str(u)) for u in document.xpath(xp)}
+            urls -= {utils.parse_domain_url(domain=str(response.url), url=str(u)) for u in document.xpath(xp)}
         return {Task(url=url) for url in urls}
 
 
