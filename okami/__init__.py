@@ -1,5 +1,8 @@
-from okami import constants
+__version__ = "0.2.0"
 
-__version__ = "{}.{}.{}".format(*constants.VERSION)
+from .cfg import Settings  # noqa
 
-from .api import Downloader, Item, Spider, Task, Throttle  # noqa
+settings = Settings()
+
+from .api import Downloader, Item, Response, Request, Spider, Task, Throttle  # noqa
+from .storage import Storage  # noqa

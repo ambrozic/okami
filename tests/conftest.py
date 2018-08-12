@@ -1,10 +1,18 @@
 import os
 
-import pytest
+os.environ["OKAMI_SETTINGS"] = "tests.settings"  # noqa
 
+import asyncio
+from functools import partial
+
+import pytest
+from aiohttp.test_utils import TestServer
+from sqlitedict import SqliteDict
+
+from okami import settings
 from tests.factory import Factory
 
-BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+settings.configure()
 
 
 @pytest.fixture(scope="session")
@@ -13,17 +21,18 @@ def factory():
 
 
 @pytest.fixture(scope="function")
-def storage():
-    try:
-        import redis
-    except ImportError:
-        pytest.skip()
+def db(tmpdir):
+    filename = os.path.join(str(tmpdir), "okami.sqlite")
+    database = SqliteDict(filename=filename, autocommit=True)
+    yield database
+    database.close()
 
-    try:
-        from okami.storage import RedisStorage
-        storage = RedisStorage(name="test", url="redis://localhost:6379/0")
-        storage.db.flushall()
-        yield storage
-        storage.db.flushall()
-    except redis.exceptions.ConnectionError:
-        pytest.skip()
+
+@pytest.fixture(scope="function")
+def coro():
+    return asyncio.coroutine
+
+
+@pytest.fixture(scope="function")
+def server(app=None, port=8888):
+    return partial(TestServer, app=app, port=port)

@@ -28,23 +28,15 @@ class HttpMiddlewareException(MiddlewareException):
     pass
 
 
+class SpiderMiddlewareException(MiddlewareException):
+    pass
+
+
 class PipelineException(OkamiException):
     pass
 
 
 class StartupPipelineException(PipelineException):
-    pass
-
-
-class StatsPipelineException(PipelineException):
-    pass
-
-
-class RequestsPipelineException(PipelineException):
-    pass
-
-
-class ResponsesPipelineException(PipelineException):
     pass
 
 

@@ -1,0 +1,48 @@
+site_name: "Okami"
+site_url: "https://ambrozic.github.io/okami"
+repo_url: "https://github.com/ambrozic/okami"
+site_description: "A high-level web scraping framework"
+site_author: "ambrozic"
+copyright: 'Copyright &copy; 2018 ambrozic'
+edit_uri: ""
+
+theme:
+  name: "material"
+  feature:
+    tabs: true
+  font:
+    text: "Open Sans"
+    code: "Source Code Pro"
+
+extra_css:
+- "assets/styles.css"
+
+markdown_extensions:
+- markdown.extensions.admonition
+- markdown.extensions.codehilite
+- markdown.extensions.toc:
+    permalink: "#"
+- pymdownx.caret
+- pymdownx.tilde
+- pymdownx.mark
+
+nav:
+- Introduction: "index.md"
+- Usage: "usage.md"
+- Documentation:
+  - Architecture: "docs/architecture.md"
+  - Spiders: "docs/spiders.md"
+  - Downloader: "docs/downloader.md"
+  - Middlewares: "docs/middlewares.md"
+  - Pipelines: "docs/pipelines.md"
+  - Signals: "docs/signals.md"
+  - Server: "docs/server.md"
+  - Storage: "docs/storage.md"
+  - Throttling: "docs/throttling.md"
+  - CLI: "docs/cli.md"
+  - Settings: "docs/settings.md"
+  - API: "docs/api.md"
+- Contributing: "contributing.md"
+- Releases: "releases.md"
+- License: "license.md"
+- FAQ: "faq.md"

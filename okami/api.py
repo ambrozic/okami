@@ -3,8 +3,7 @@ import time
 
 import lxml.html
 
-from okami import constants, signals, utils
-from okami.configuration import settings
+from okami import constants, settings, signals, utils
 from okami.exceptions import SpiderException
 
 log = logging.getLogger(__name__)
@@ -12,20 +11,10 @@ log = logging.getLogger(__name__)
 
 class BaseSpider:
     """
-    :class:`BaseSpider <okami.api.BaseSpider>` object
+    BaseSpider <okami.api.BaseSpider>
 
     :cvar name: unique spider name
     :cvar urls: (dictionary)
-
-    .. code-block:: python
-
-        class Example(Spider):
-            name = "example.com"
-            urls = dict(
-                start=[],
-                allow=[],
-                avoid=[]
-            )
     """
 
     name = None
@@ -33,15 +22,21 @@ class BaseSpider:
 
     async def items(self, task, response):
         """
-        Processes :class:`Response <okami.api.Response>` object into a list of :class:`Item <okami.Item>` objects.
+        Processes Task <okami.Task> and Response <okami.Response>
+        into a List[Item <okami.Item>].
 
-        :param task: :class:`Task <okami.Task>` object
-        :param response: :class:`Response <okami.api.Response>` object
-        :returns: list of :class:`Item <okami.Item>` objects
+        :param task: Task <okami.Task>
+        :param response: Response <okami.Response>
+        :returns: List[Item <okami.Item>]
         """
         raise NotImplementedError
 
     async def process(self, task, response):
+        """
+        :param task: Task <okami.Task>
+        :param response: Response <okami.Response>
+        :returns: tuple of (Set[Task <okami.Task>], List[Item <okami.Item>])
+        """
         try:
             return (
                 await self.tasks(task=task, response=response),
@@ -53,30 +48,44 @@ class BaseSpider:
     def request(self):
         """
         Defines a dictionary of extra arguments to pass in HTTP request.
-        Check :class:`Downloader.process <okami.Downloader>` method.
+        Check Downloader.process <okami.Downloader> method.
 
         :returns: (dictionary)
         """
         return dict()
 
-    def session(self):
+    async def session(self, request):
         """
-        Defines a session object for this :class:`Spider <okami.Spider>`.
-        Check :class:`Session.process <okami.pipeline.Session>` method.
+        Defines a session object for this Spider <okami.Spider>.
+        Check Session.process <okami.pipeline.Session> method.
 
         Should be used for special cases like authentication handling etc.
 
-        :returns: (list) of :class:`Item <okami.Item>` objects
+        :param request: Request <okami.Request>
+        :returns: aiohttp.ClientSession
         """
         raise NotImplementedError
 
+    async def hash(self, task, response):
+        """
+        In case delta scrape mode is enabled and custom delta key functionality is required this method should be
+        implemented.
+
+        If None is returned, custom functionality is skipped.
+
+        :param task: Task <okami.Task>
+        :param response: Response <okami.Response>
+        :returns: string or None
+        """
+        pass
+
     async def tasks(self, task, response):
         """
-        Processes :class:`Response <okami.api.Response>` object into a list of :class:`Task <okami.Task>` objects.
+        Processes Response <okami.Response> into a Set[Task <okami.Task>].
 
-        :param task: :class:`Task <okami.Task>` object
-        :param response: :class:`Response <okami.api.Response>` object
-        :returns: (list) of :class:`Task <okami.Task>` objects
+        :param task: Task <okami.Task>
+        :param response: Response <okami.Response>
+        :returns: Set[Task <okami.Task>]
         """
         document = lxml.html.document_fromstring(html=response.text)
         urls = set()
@@ -89,9 +98,9 @@ class BaseSpider:
 
 class Downloader:
     """
-    :class:`Downloader <okami.Downloader>` object
+    Downloader <okami.Downloader>
 
-    :param controller: :class:`Controller <okami.engine.Controller>` object
+    :param controller: Controller <okami.engine.Controller>
     """
 
     def __init__(self, controller):
@@ -101,8 +110,8 @@ class Downloader:
         """
         Makes an actual HTTP request against a processing website's URL.
 
-        :param request: :class:`Request <okami.api.Request>` object
-        :returns: :class:`Response <okami.api.Response>` object
+        :param request: Request <okami.Request>
+        :returns: Response <okami.Response>
         """
         async with self.controller.session.request(
             **{
@@ -130,12 +139,12 @@ class Downloader:
 
 class Item:
     """
-    :class:`Item <okami.Item>` object
+    Item <okami.Item>
     """
 
     def to_dict(self):
         """
-        Converts :class:`Item <okami.Item>` object into dictionary representation
+        Converts Item <okami.Item> into dictionary representation
 
         :returns: (dictionary)
         """
@@ -144,7 +153,7 @@ class Item:
 
 class Request:
     """
-    :class:`Request <okami.api.Request>` object
+    Request <okami.Request>
 
     :param url: URL
     :param headers: (dictionary) of HTTP headers
@@ -157,7 +166,7 @@ class Request:
 
 class Response:
     """
-    :class:`Response <okami.api.Response>` object
+    Response <okami.Response>
 
     :param url: URL
     :param version: HTTP version
@@ -178,13 +187,14 @@ class Response:
 
 class Result:
     """
-    :class:`Result <okami.api.Result>` object
+    Result <okami.api.Result>
 
-    :param status: :class:`status <okami.constants.status>` object
-    :param task: :class:`Task <okami.Task>` object
-    :param tasks: (list) of :class:`Task <okami.Task>` objects
-    :param items: (list) of :class:`Item <okami.Item>` objects
+    :param status: status <okami.constants.status>
+    :param task: Task <okami.Task>
+    :param tasks: Set[Task <okami.Task>]
+    :param items: List[Item <okami.Item>]
     """
+
     __slots__ = ["status", "task", "tasks", "items"]
 
     def __init__(self, status, task, tasks, items):
@@ -195,74 +205,46 @@ class Result:
 
 
 class Spider(BaseSpider):
-    """:class:`Spider <okami.Spider>` object
-
-    Take a look at this example :class:`Spider <okami.Spider>`.
-
-    :cvar name: unique spider name
-    :cvar urls: (dictionary)
-
-    .. code-block:: python
-
-        class Example(Spider):
-            name = "example.com"
-            urls = dict(
-                start=[],
-                allow=[],
-                avoid=[]
-            )
     """
+    Spider <okami.Spider>
+    """
+    pass
 
 
 class Stats:
     """
-    :class:`Stats <okami.api.Stats>` object
+    Stats <okami.api.Stats>
 
-    :param times: (dictionary)
-    :param tasks: (dictionary)
-    :param items: (dictionary)
-    :param state: (dictionary)
+    :param controller: Controller <okami.engine.Controller>
     """
-    __slots__ = ["times", "tasks", "items", "state"]
 
-    def __init__(self, times, tasks, items, state):
-        self.times = times
-        self.tasks = tasks
-        self.items = items
-        self.state = state
+    def __init__(self, controller):
+        self.controller = controller
+        self.data = dict()
 
-    @classmethod
-    def from_dict(cls, data):
-        """
-        Create new :class:`Stats <okami.api.Stats>` object from passed dictionary
+    def collect(self):
+        for k, v in self.controller.storage.to_dict().items():
+            self.data["storage/{}".format(k)] = v
+        for k, v in self.controller.throttle.to_dict().items():
+            self.data["throttle/{}".format(k)] = v
+        return self.data
 
-        :param data: (dictionary)
-        :returns: :class:`Stats <okami.api.Stats>` object
-        """
-        return cls(
-            times=data.get("times", {}),
-            tasks=data.get("tasks", {}),
-            items=data.get("items", {}),
-            state=data.get("state", {}),
-        )
+    def get(self, key, default=None):
+        return self.data.get(key, default)
 
-    def to_dict(self):
-        """
-        Converts :class:`Item <okami.api.Stats>` object into dictionary representation
+    def set(self, key, value):
+        self.data[key] = value
 
-        :returns: (dictionary)
-        """
-        return dict(
-            times=self.times or {},
-            tasks=self.tasks or {},
-            items=self.items or {},
-            state=self.state or {},
-        )
+    def decr(self, key, value=1):
+        self.data[key] -= value
+
+    def incr(self, key, value=1):
+        self.data[key] += value
 
 
 class State:
     """
-    :class:`State <okami.api.State>` object
+    State <okami.api.State>
 
     :param sleep: (float) sleep time between requests
     :param max_rps: (float) maximum number of requests per second
@@ -293,11 +275,12 @@ class State:
 
 class Task:
     """
-    :class:`Task <okami.Task>` object
+    Task <okami.Task>
 
     :param url: URL
     :param data: (dictionary)
     """
+
     __slots__ = ["url", "data"]
 
     def __init__(self, url, data=None):
@@ -319,10 +302,10 @@ class Task:
     @classmethod
     def from_dict(cls, data):
         """
-        Creates :class:`Task <okami.Task>` object from dictionary 'data'
+        Creates Task <okami.Task> from dictionary 'data'
 
         :param data: (dictionary)
-        :returns: :class:`Task <okami.Task>` object
+        :returns: Task <okami.Task>
         """
         return cls(
             url=data["url"],
@@ -331,7 +314,7 @@ class Task:
 
     def to_dict(self):
         """
-        Converts :class:`Task <okami.Task>` object into dictionary representation
+        Converts Task <okami.Task> into dictionary representation
 
         :returns: (dictionary)
         """
@@ -343,7 +326,7 @@ class Task:
 
 class Throttle:
     """
-    :class:`Throttle <okami.Throttle>` object
+    Throttle <okami.Throttle>
 
     :param sleep: (float) sleep time between requests
     :param max_rps: (float) maximum number of requests per second
@@ -351,7 +334,7 @@ class Throttle:
 
     :ivar time_started: (float) time at start
     :ivar time_last_modified: (float) time at last request
-    :ivar state: :class:`State <okami.api.State>` object
+    :ivar state: State <okami.api.State>
     """
 
     def __init__(self, sleep=None, max_rps=None, fn=None):

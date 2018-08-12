@@ -1,8 +1,9 @@
+import json
 import re
 import urllib.parse
 
 RE_DOMAIN = re.compile(
-    pattern="^((http[s]?|ftp):\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)(:[0-9]{2,6})?", flags=re.IGNORECASE
+    pattern="^((http[s]?|ftp):\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)(:[0-9]{2,6})?", flags=re.UNICODE | re.IGNORECASE
 )
 
 
@@ -30,3 +31,17 @@ def parse_domain_url(domain, url):
 def filter_urls(domains, urls):
     dd = {RE_DOMAIN.match(d).group(0) for d in domains}
     return {u for u in urls if RE_DOMAIN.match(u).group(0) in dd}
+
+
+def pprint(obj):
+    dump = json.dumps(obj, sort_keys=True, indent=4, separators=(",", ": "), ensure_ascii=False)
+    try:
+        import pygments.lexers
+        import pygments.styles
+        from pygments.formatters.terminal256 import Terminal256Formatter
+
+        lexer = pygments.lexers.get_lexer_by_name("json")
+        formatter = Terminal256Formatter(style=pygments.styles.get_style_by_name("native"))
+        print(pygments.highlight(dump.encode(), lexer, formatter).strip())
+    except ImportError:
+        print(dump)

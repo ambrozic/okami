@@ -2,15 +2,15 @@ import inspect
 import logging
 import pkgutil
 
+from okami import settings
 from okami.api import Spider
-from okami.configuration import settings
 from okami.exceptions import NoSuchSpiderException
 
 log = logging.getLogger(__name__)
 
 
 def is_spider(obj):
-    return inspect.isclass(obj) and issubclass(obj, Spider) and getattr(obj, "name", None)
+    return inspect.isclass(obj) and issubclass(obj, Spider) and hasattr(obj, "name")
 
 
 def get_class(path_name):
@@ -49,13 +49,12 @@ def get_spiders_classes(entry_point_name=None):
             else:
                 for name, obj in inspect.getmembers(mod):
                     if is_spider(obj) and mod.__name__ == obj.__module__:
-                        try:
-                            sn = getattr(obj, "name", None)
-                            if sn in discovered:
-                                raise Exception("Duplicate spider '{}': {} and {}".format(sn, obj, discovered[sn]))
-                            discovered[sn] = obj
-                        except AttributeError:
-                            pass
+                        sn = getattr(obj, "name", None)
+                        if not sn:
+                            continue
+                        if sn in discovered:
+                            raise Exception("Duplicate spider '{}': {} and {}".format(sn, obj, discovered[sn]))
+                        discovered[sn] = obj
 
     load_module(module_name=entry_point_name)
     return discovered

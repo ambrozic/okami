@@ -1,0 +1,23 @@
+header.md-header, nav.md-tabs {
+    background-color: #2c4f76;
+}
+
+label.md-nav__title {
+    display: none;
+}
+
+footer div.md-footer-nav {
+    background-color: #2c4f76;
+}
+
+footer div.md-footer-meta {
+    background-color: #2a3e64;
+}
+
+.md-typeset mark, .md-typeset code {
+    border-radius: 0;
+}
+
+.md-typeset code {
+    padding: 0.35em 0 0.15em 0;
+}

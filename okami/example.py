@@ -6,8 +6,7 @@ import random
 import lxml.html
 from aiohttp import web
 
-from okami import Item, Spider, constants
-from okami.configuration import settings
+from okami import settings, Item, Spider
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +21,7 @@ class Example(Spider):
         start=["http://localhost:8000/"],
         allow=[
             "//nav//a/@href",
-            "//div[@id='product-list']//div//a/@href"
+            "//div[@id='product-list']//div//a/@href",
         ],
         avoid=[
             "//a[contains(@href, '/about/')]/@href",
@@ -43,7 +42,7 @@ class Example(Spider):
             images = product.xpath(".//div//img/@src")
             item = Product(
                 iid=iid,
-                url=response.url,
+                url=str(response.url),
                 name=name,
                 category=category,
                 desc=desc,
@@ -52,6 +51,9 @@ class Example(Spider):
             )
             items.append(item)
         return items
+
+    async def hash(self, task, response):
+        return task.url
 
 
 class Product(Item):
@@ -82,11 +84,28 @@ class Product(Item):
 
 class HTTPService:
     CATEGORIES = dict(
-        jeans=(11, 23), shorts=(12, 22), pants=(13, 21), shirts=(14, 32), underwear=(15, 9),
-        suits=(21, 11), coats=(22, 15), jackets=(23, 12),
-        shoes=(31, 14), boots=(32, 11), sandals=(33, 9), sneakers=(34, 8),
-        bags=(41, 5), backpacks=(42, 6), briefcases=(43, 3), luggage=(44, 4),
-        belts=(51, 12), hats=(52, 10), gloves=(53, 7), ties=(54, 11), scarves=(55, 7), jewelery=(56, 21),
+        backpacks=(42, 6),
+        bags=(41, 5),
+        belts=(51, 12),
+        boots=(32, 11),
+        briefcases=(43, 3),
+        coats=(22, 15),
+        gloves=(53, 7),
+        hats=(52, 10),
+        jackets=(23, 12),
+        jeans=(11, 23),
+        jewelery=(56, 21),
+        luggage=(44, 4),
+        pants=(13, 21),
+        sandals=(33, 9),
+        scarves=(55, 7),
+        shirts=(14, 32),
+        shoes=(31, 14),
+        shorts=(12, 22),
+        sneakers=(34, 8),
+        suits=(21, 11),
+        ties=(54, 11),
+        underwear=(15, 9),
     )
     TEMPLATE = """<!DOCTYPE html>
     <html lang="en">
@@ -116,43 +135,30 @@ class HTTPService:
     GOaA8z6AMALsqMyNEyI43qYxi7LO1cXUmm3JWLNTJ+FzP46OcgINf+4DqlsUpOjS2STxfP/OywnAVNnBz/iNlaLYXvrvrsLg4l8QmIMVIZUESgVKBUo
     FSgVKBTYqAGEMaOOcWPyksQ6ivtNjdDsp2fS7mGK3fYf/9ruiAnfXTPEoE9B9vEsCvwFTE6VLUurtxwAAAABJRU5ErkJggg=="""
 
-    def __init__(self, address, multiplier):
+    def __init__(self, address, multiplier, delay=0.0):
         self.address = address
         self.multiplier = multiplier
+        self.delay = delay
         try:
             self.app = web.Application(debug=settings.DEBUG)
-            self.app.router.add_route(constants.method.GET, "/", self.view_index)
-            self.app.router.add_route(constants.method.GET, "/images/{cat}/{iid}.png", self.view_image)
-            self.app.router.add_route(constants.method.GET, "/{cat}/", self.view_category)
-            self.app.router.add_route(constants.method.GET, "/{cat}/{pid}/", self.view_product)
+            self.app.router.add_routes(
+                [
+                    web.get(path="/", handler=self.view_index, name="index"),
+                    web.get(path="/images/{cat}/{iid}.png", handler=self.view_image, name="image"),
+                    web.get(path="/{cat}/", handler=self.view_category, name="category"),
+                    web.get(path="/{cat}/{pid}/", handler=self.view_product, name="product"),
+                ]
+            )
             self.navigation = None
 
         except Exception as e:
             log.exception(e)
 
     def start(self):
-        try:
-            host, port = self.address.split(":")
-            loop = asyncio.get_event_loop()
-            handler = self.app.make_handler()
-            srv = loop.run_until_complete(loop.create_server(handler, host, int(port)))
-            print(
-                "Serving on http://{}:{}/ - items: {}".format(
-                    host, port, sum(map(lambda a: a[1] * self.multiplier, self.CATEGORIES.values())) * 2
-                )
-            )
-            try:
-                loop.run_forever()
-            except KeyboardInterrupt:
-                pass
-            finally:
-                loop.run_until_complete(handler.finish_connections(1.0))
-                srv.close()
-                loop.run_until_complete(srv.wait_closed())
-                loop.run_until_complete(self.app.cleanup())
-            loop.close()
-        except Exception as e:
-            log.exception(e)
+        host, port = self.address.split(":")
+        items = sum(map(lambda a: a[1] * self.multiplier, self.CATEGORIES.values())) * 2
+        print("Okami Example Server at http://{}:{}/ - items: {}, delay: {}".format(host, port, items, self.delay))
+        web.run_app(app=self.app, host=host, port=port, print=None)
 
     def get_product(self, pid, cat):
         if not pid or not cat:
@@ -165,7 +171,7 @@ class HTTPService:
             slug="{}-name-{}".format(cat, pid),
             desc="some desc {}".format(pid),
             price=random.randint(num * 100, num * 100 * 3) / 100.0,
-            images=["http://{}/images/name-{}/{}.png".format(self.address, i, i) for i in range(4, 6 + int(pid) % 9)]
+            images=["http://{}/images/name-{}/{}.png".format(self.address, i, i) for i in range(4, 6 + int(pid) % 9)],
         )
 
     def get_products(self, cat=None):
@@ -219,6 +225,7 @@ class HTTPService:
     async def view_product(self, request):
         pid = request.match_info.get("pid")
         cat = request.match_info.get("cat")
+        await asyncio.sleep(self.delay)
         return web.Response(
             body=self.render_template(
                 data=dict(title="Example | {} | {}".format(cat, pid), product=self.get_product(pid, cat))
@@ -230,6 +237,5 @@ class HTTPService:
         resp = web.StreamResponse()
         resp.content_type = "image/png"
         await resp.prepare(request)
-        resp.write(base64.b64decode(self.IMAGE))
-        await resp.drain()
+        await resp.write(base64.b64decode(self.IMAGE))
         return resp
