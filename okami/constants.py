@@ -1,6 +1,3 @@
-VERSION = (0, 1, 5)
-
-
 class status:
     OK = 0
     FAILED = 1

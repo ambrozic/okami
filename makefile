@@ -1,12 +1,13 @@
-.PHONY: build docs install test
+.PHONY: init install build lint test coverage docs publish
+.SILENT: init install build lint test coverage docs publish
 
 init: build lint test coverage
 
 install:
-	pip install -e .
+	pip install --upgrade pip setuptools wheel && pip install .
 
 build:
-	pip install -e .[tests,docs]
+	pip install --upgrade pip setuptools wheel && pip install -e .[tests,docs]
 
 lint:
 	flake8 okami tests
@@ -15,12 +16,13 @@ test:
 	py.test tests --verbose --capture=no
 
 coverage:
-	py.test tests --cov-config=.coveragerc --cov-report=term --cov=okami
+	py.test --cov-report=term --cov=okami tests
 
-documentation:
-	cd docs && make html serve
+docs:
+	mkdocs serve
 
 publish:
-	pip install wheel
-	python setup.py bdist_wheel --universal upload
-	rm -rf build dist .egg requests.egg-info
+	pip install wheel twine
+	python setup.py sdist bdist_wheel --universal
+	twine upload dist/*
+	rm -rf build dist okami.egg-info

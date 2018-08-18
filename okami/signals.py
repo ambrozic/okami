@@ -21,9 +21,9 @@ class Signal:
 
     def disconnect(self, receiver):
         try:
-            self.receivers.pop(receiver)  # eventually change to self.receivers.discard(receiver)
-        except KeyError as e:
-            log.exception("{} does not exist".format(receiver), e)
+            self.receivers.remove(receiver)
+        except ValueError:
+            log.exception("%s receiver does not exist", receiver)
         self.clear()
 
     async def send(self, sender, **kwargs):
@@ -55,40 +55,29 @@ def receiver(signal):
     return decorate
 
 
-#: response object created
+http_middleware_initialised = Signal()
+http_middleware_started = Signal()
+http_middleware_finished = Signal()
+http_middleware_finalised = Signal()
+
+spider_middleware_initialised = Signal()
+spider_middleware_started = Signal()
+spider_middleware_finished = Signal()
+spider_middleware_finalised = Signal()
+
 response_created = Signal()
 
-#: http middleware started
-http_middleware_started = Signal()
-#: http middleware finished
-http_middleware_finished = Signal()
-
-#: startup pipeline started
+startup_pipeline_initialised = Signal()
 startup_pipeline_started = Signal()
-#: startup pipeline finished
 startup_pipeline_finished = Signal()
+startup_pipeline_finalised = Signal()
 
-#: stats pipeline started
-stats_pipeline_started = Signal()
-#: stats pipeline finished
-stats_pipeline_finished = Signal()
-
-#: requests pipeline started
-requests_pipeline_started = Signal()
-#: requests pipeline finished
-requests_pipeline_finished = Signal()
-
-#: responses pipeline started
-responses_pipeline_started = Signal()
-#: responses pipeline finished
-responses_pipeline_finished = Signal()
-
-#: items pipeline started
+items_pipeline_initialised = Signal()
 items_pipeline_started = Signal()
-#: items pipeline finished
 items_pipeline_finished = Signal()
+items_pipeline_finalised = Signal()
 
-#: tasks pipeline started
+tasks_pipeline_initialised = Signal()
 tasks_pipeline_started = Signal()
-#: tasks pipeline finished
 tasks_pipeline_finished = Signal()
+tasks_pipeline_finalised = Signal()

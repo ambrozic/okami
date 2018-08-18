@@ -1,44 +1,140 @@
 import asyncio
 import logging
-import random
 import time
 from collections import defaultdict
 
 import aiohttp
 
-from okami import constants, loader, signals
+from okami import constants, loader, settings, signals
 from okami.api import Request, Result, Stats, Task
-from okami.configuration import settings
 from okami.exceptions import (
-    OkamiTerminationException, HttpMiddlewareException,
-    ItemsPipelineException, TasksPipelineException,
-    RequestsPipelineException, ResponsesPipelineException,
-    StartupPipelineException, StatsPipelineException
+    HttpMiddlewareException,
+    ItemsPipelineException,
+    OkamiTerminationException,
+    SpiderMiddlewareException,
+    StartupPipelineException,
+    TasksPipelineException,
 )
 
 log = logging.getLogger(__name__)
+
+asyncio.set_event_loop_policy(settings.EVENT_LOOP_POLICY)
 
 
 class Okami:
     @staticmethod
     def start(name):
         spider = loader.get_spider_class_by_name(name=name)()
-        controller = Controller(spider=spider)
-        controller.start()
+        asyncio.get_event_loop().run_until_complete(Controller(spider=spider).start())
 
     @staticmethod
     def process(name, url):
+        loop = asyncio.get_event_loop()
         spider = loader.get_spider_class_by_name(name=name)()
         controller = Controller(spider=spider)
-        controller.manager.storage.initialise()
-        result = asyncio.get_event_loop().run_until_complete(controller.process(task=Task(url=url)))
+        loop.run_until_complete(controller.initialise())
+        result = loop.run_until_complete(controller.process(task=Task(url=url)))
         items = [item.to_dict() for item in result.items]
-        controller.close()
+        loop.run_until_complete(controller.finalise())
         return items
 
     @staticmethod
     def serve(address=settings.HTTP_SERVER_ADDRESS):
         loader.get_class(settings.HTTP_SERVER)(address=address).start()
+
+
+class Controller:
+    def __init__(self, spider):
+        if settings.DEBUG:
+            loop = asyncio.get_event_loop()
+            loop.set_debug(enabled=settings.DEBUG)
+            loop.slow_callback_duration = settings.ASYNC_SLOW_CALLBACK_DURATION
+
+        self.spider = spider
+        self.stats = Stats(controller=self)
+        self.session = None
+        self.storage = loader.get_class(settings.STORAGE)(name=self.spider.name, **settings.STORAGE_SETTINGS)
+        self.throttle = loader.get_class(settings.THROTTLE)(**settings.THROTTLE_SETTINGS)
+        self.downloader = loader.get_class(settings.DOWNLOADER)(controller=self)
+        self.middleware = Middlewares(controller=self)
+        self.pipeline = Pipelines(controller=self)
+        self.manager = Manager(name=self.spider.name, storage=self.storage)
+
+    async def initialise(self):
+        log.debug("Okami: initialising")
+        await self.pipeline.initialise()
+        await self.middleware.initialise()
+        self.spider = await self.pipeline.startup.process(spider=self.spider)
+        self.manager.event.clear()
+        self.manager.storage.add_tasks_queued({Task(url=url) for url in self.spider.urls.get("start", [])})
+
+    async def start(self):
+        log.debug("Okami: starting")
+        try:
+            await self.initialise()
+            await self.run()
+        except (KeyboardInterrupt, SystemExit):
+            pass
+        except Exception as e:
+            log.exception(e)
+        finally:
+            await self.finalise()
+
+    async def run(self):
+        log.debug("Okami: running")
+        self.manager.storage.set_info_time_started(time.time())
+
+        with self.throttle as throttle:
+            while self.manager.running:
+                for task in await self.manager.scheduled():
+                    await asyncio.Task(self.process(task=task))
+                    await asyncio.sleep(throttle.sleep)
+
+                if not self.manager.event.is_set():
+                    await self.manager.event.wait()
+
+    async def process(self, task):
+        status, tasks, items = 0, set(), set()
+        with (await self.manager.semaphore):
+            try:
+                request = Request(url=task.url)
+                request = await self.middleware.http.before(request=request)
+                response = await self.downloader.process(request=request)
+                response = await self.middleware.http.after(response=response)
+
+                if response.status in constants.HTTP_FAILED:
+                    status = response.status
+                else:
+                    response = await self.middleware.spider.before(task=task, response=response)
+                    tasks, items = await self.spider.process(task=task, response=response)
+                    tasks, items = await self.middleware.spider.after(
+                        task=task, response=response, tasks=tasks, items=items
+                    )
+                    if tasks:
+                        tasks = await self.pipeline.tasks.process(tasks=tasks)
+                    if items:
+                        items = await self.pipeline.items.process(items=items)
+
+            except aiohttp.ClientError as e:
+                log.exception(e)
+                status = constants.status.RETRIAL
+                await self.session.close()
+            except Exception as e:
+                log.exception(e)
+                status = constants.status.FAILED
+
+            result = Result(status=status, task=task, tasks=tasks, items=items)
+            await self.manager.process(result=result)
+            return result
+
+    async def finalise(self):
+        log.debug("Okami: finalising")
+        await self.manager.stop()
+        if self.session and not self.session.closed:
+            await self.session.close()
+        await self.pipeline.finalise()
+        await self.middleware.finalise()
+        log.debug("Okami: finished")
 
 
 class Manager:
@@ -49,12 +145,8 @@ class Manager:
         self.retrials = set()
         self.counters = defaultdict(lambda: defaultdict(lambda: 0))
         self.iterations = 0
-        self.event = asyncio.locks.Event()
-        self.semaphore = asyncio.locks.Semaphore(value=settings.CONN_MAX_CONCURRENT_REQUESTS)
-
-    def stop(self):
-        self.terminate = True
-        return self.terminate
+        self.event = asyncio.Event()
+        self.semaphore = asyncio.Semaphore(value=settings.CONN_MAX_CONCURRENT_REQUESTS)
 
     @property
     def running(self):
@@ -91,128 +183,30 @@ class Manager:
         if not self.event.is_set():
             self.event.set()
 
-
-class Controller:
-    def __new__(cls, *args, **kwargs):
-        asyncio.set_event_loop_policy(settings.EVENT_LOOP_POLICY)
-        loop = asyncio.get_event_loop()
-        loop.slow_callback_duration = 0.2
-        loop.set_debug(settings.DEBUG)
-        return super().__new__(cls, *args)
-
-    def __init__(self, spider):
-        self.spider = spider
-        self.loop = asyncio.get_event_loop()
-        self.is_leader = False
-        self.session = None
-        self.storage = loader.get_class(settings.STORAGE)(name=self.spider.name, **settings.STORAGE_SETTINGS)
-        self.throttle = loader.get_class(settings.THROTTLE)(**settings.THROTTLE_SETTINGS)
-        self.downloader = loader.get_class(settings.DOWNLOADER)(controller=self)
-        self.middleware = Middlewares(controller=self)
-        self.pipeline = Pipelines(controller=self)
-        self.manager = Manager(name=self.spider.name, storage=self.storage)
-
-    def start(self):
-        log.debug("Okami: starting")
-        try:
-            self.loop.run_until_complete(self.initialise())
-            self.loop.run_until_complete(self.run())
-        except (KeyboardInterrupt, SystemExit):
-            pass
-        except Exception as e:
-            log.exception(e)
-        finally:
-            self.close()
-
-    async def initialise(self):
-        log.debug("Okami: initialising")
-        self.manager.event.clear()
-        await asyncio.sleep(random.randint(0, 100) / 1000.0)
-        self.is_leader = self.manager.storage.initialise()
-        if self.is_leader:
-            self.manager.storage.set_info_time_initialised(time.time())
-        self.manager.storage.add_tasks_queued({Task(url=url) for url in self.spider.urls.get("start", [])})
-        self.spider = await self.pipeline.startup.process(self.spider)
-
-    async def run(self):
-        log.debug("Okami: running")
-        if self.is_leader:
-            self.manager.storage.set_info_time_started(time.time())
-
-        with self.throttle as throttle:
-            while self.manager.running:
-                for task in await self.manager.scheduled():
-                    await asyncio.Task(self.process(task=task))
-                    await asyncio.sleep(max(1.0 - (self.manager.iterations * 0.2) ** 2.0, throttle.sleep))
-
-                if not self.manager.event.is_set():
-                    await self.manager.event.wait()
-
-    async def process(self, task):
-        status, tasks, items = 0, set(), set()
-        with (await self.manager.semaphore):
-            try:
-                request = Request(url=task.url)
-                request = await self.pipeline.requests.process(request)
-                request = await self.middleware.http.before(request)
-                response = await self.downloader.process(request)
-                response = await self.middleware.http.after(response)
-                response = await self.pipeline.responses.process(response)
-
-                if response.status in constants.HTTP_FAILED:
-                    status = response.status
-                else:
-                    tasks, items = await self.spider.process(task=task, response=response)
-                    if tasks:
-                        tasks = await self.pipeline.tasks.process(tasks)
-                    if items:
-                        items = await self.pipeline.items.process(items)
-
-                await self.pipeline.stats.process(stats=await self.stats())
-
-            except aiohttp.ClientError as e:
-                log.exception(e)
-                status = constants.status.RETRIAL
-                self.session.close()
-            except Exception as e:
-                log.exception(e)
-                status = constants.status.FAILED
-
-            result = Result(status=status, task=task, tasks=tasks, items=items)
-            await self.manager.process(result=result)
-            return result
-
-    def close(self):
-        log.debug("Okami: stopping")
-        self.manager.stop()
-        try:
-            self.loop.run_until_complete(asyncio.gather(*asyncio.Task.all_tasks()))
-        except Exception as e:
-            log.exception(e)
-        finally:
-            self.manager.storage.finalise()
-            if self.session and not self.session.closed:
-                self.session.close()
-            if self.loop:
-                self.loop.close()
-        log.debug("Okami: finished")
-
-    async def stats(self):
-        if not self.pipeline.stats.sources:
-            return
-        return Stats.from_dict({**self.manager.storage.to_dict(), **dict(state=self.throttle.to_dict())})
+    async def stop(self):
+        self.terminate = True
+        return self.terminate
 
 
 class Middlewares:
     def __init__(self, controller):
         self.http = HttpMiddleware(controller=controller)
+        self.spider = SpiderMiddleware(controller=controller)
+
+    async def initialise(self):
+        for middleware in [self.http, self.spider]:
+            await middleware.initialise()
+
+    async def finalise(self):
+        for middleware in [self.http, self.spider]:
+            await middleware.finalise()
 
 
 class Middleware:
     """
-    Base :class:`Middleware <okami.engine.Middleware>` object
+    Base Middleware <okami.engine.Middleware>
 
-    :param controller: :class:`Controller <okami.engine.Controller>` object
+    :param controller: Controller <okami.engine.Controller>
     :ivar sources: merged tuple of registered middleware
     :ivar cached: middleware is lazily loaded and cached
     """
@@ -223,81 +217,205 @@ class Middleware:
         self.cached = []
 
     @property
-    def middleware(self):
+    def middlewares(self):
         if not self.cached:
             for middleware in self.sources:
                 self.cached.append(loader.get_class(middleware)(controller=self.controller))
         return self.cached
 
-    async def before(self, something):
+    async def initialise(self):
         raise NotImplementedError
 
-    async def after(self, something):
+    async def before(self, **kwargs):
+        raise NotImplementedError
+
+    async def after(self, **kwargs):
+        raise NotImplementedError
+
+    async def finalise(self):
         raise NotImplementedError
 
 
 class HttpMiddleware(Middleware):
     """
-    :class:`HttpMiddleware <okami.engine.HttpMiddleware>` object
+    HttpMiddleware <okami.engine.HttpMiddleware>
 
-    :param controller: :class:`Controller <okami.engine.Controller>` object
-    :ivar sources: merged tuple of registered middleware
+    :param controller: Controller <okami.engine.Controller>
+    :ivar sources: merged tuple of registered http middleware
     """
 
     def __init__(self, controller):
         super().__init__(controller)
         self.sources = settings.BASE_HTTP_MIDDLEWARE + settings.HTTP_MIDDLEWARE
 
-    async def before(self, request):
+    async def initialise(self):
         """
-        Runs a :class:`Request <okami.api.Request>` object through all registered http middleware.
-        Runs for every request/response cycle.
-
-        :param request: :class:`Request <okami.api.Request>` object
-        :returns: :class:`Request <okami.api.Request>` object
+        Initialises all registered http middleware at the beginning of scraping process.
         """
         try:
-            if self.middleware:
-                await signals.http_middleware_started.send(sender=self, request=request)
-                for middleware in self.middleware:
-                    request = await middleware.before(request)
+            if self.middlewares:
+                for middleware in self.middlewares:
+                    await middleware.initialise()
+                    await signals.http_middleware_initialised.send(sender=middleware)
+        except Exception as e:
+            raise HttpMiddlewareException(e) from e
+
+    async def before(self, request):
+        """
+        Runs passed Request <okami.Request> through all registered http middleware.
+        Runs for every request/response cycle.
+
+        :param request: Request <okami.Request>
+        :returns: Request <okami.Request>
+        """
+        try:
+            if self.middlewares:
+                for middleware in self.middlewares:
+                    try:
+                        request = await middleware.before(request=request)
+                    except NotImplementedError:
+                        request = request
+                    await signals.http_middleware_started.send(sender=middleware, request=request)
             return request
         except Exception as e:
             raise HttpMiddlewareException(e) from e
 
     async def after(self, response):
         """
-        Runs a :class:`Response <okami.api.Response>` object through all registered http middleware.
+        Runs passed Response <okami.Response> through all registered http middleware.
         Runs for every request/response cycle.
 
-        :param response: :class:`Response <okami.api.Response>` object
-        :returns: :class:`Response <okami.api.Response>` object
+        :param response: Response <okami.Response>
+        :returns: Response <okami.Response>
         """
         try:
-            if self.middleware:
-                for middleware in reversed(self.middleware):
-                    response = await middleware.after(response)
-                await signals.http_middleware_finished.send(sender=self, response=response)
+            if self.middlewares:
+                for middleware in reversed(self.middlewares):
+                    try:
+                        response = await middleware.after(response=response)
+                    except NotImplementedError:
+                        response = response
+                    await signals.http_middleware_finished.send(sender=middleware, response=response)
             return response
         except Exception as e:
             raise HttpMiddlewareException(e) from e
 
+    async def finalise(self):
+        """
+        Finalises all registered http middleware at the end of scraping process.
+        """
+        try:
+            if self.middlewares:
+                for middleware in reversed(self.middlewares):
+                    await middleware.finalise()
+                    await signals.http_middleware_finalised.send(sender=middleware)
+        except Exception as e:
+            raise HttpMiddlewareException(e) from e
+
+
+class SpiderMiddleware(Middleware):
+    """
+    SpiderMiddleware <okami.engine.SpiderMiddleware>
+
+    :param controller: Controller <okami.engine.Controller>
+    :ivar sources: merged tuple of registered spider middleware
+    """
+
+    def __init__(self, controller):
+        super().__init__(controller)
+        self.sources = settings.BASE_SPIDER_MIDDLEWARE + settings.SPIDER_MIDDLEWARE
+
+    async def initialise(self):
+        """
+        Initialises all registered spider middleware at the beginning of scraping process.
+        """
+        try:
+            if self.middlewares:
+                for middleware in self.middlewares:
+                    await middleware.initialise()
+                    await signals.spider_middleware_initialised.send(sender=middleware)
+        except Exception as e:
+            raise SpiderMiddlewareException(e) from e
+
+    async def before(self, task, response):
+        """
+        Runs passed objects through all registered spider middleware.
+        Runs for every spider scraping cycle.
+
+        :param task: Task <okami.Task>
+        :param response: Response <okami.Response>
+        :returns: Response <okami.Response>
+        """
+        try:
+            if self.middlewares:
+                for middleware in self.middlewares:
+                    try:
+                        response = await middleware.before(task=task, response=response)
+                    except NotImplementedError:
+                        response = response
+                    await signals.spider_middleware_started.send(sender=middleware, task=task, response=response)
+            return response
+        except Exception as e:
+            raise SpiderMiddlewareException(e) from e
+
+    async def after(self, task, response, tasks, items):
+        """
+        Runs passed objects through all registered spider middleware.
+        Runs for every spider scraping cycle.
+
+        :param task: Task <okami.Task>
+        :param response: Response <okami.Response>
+        :param tasks: Set[Task <okami.Task>]
+        :param items: List[Item <okami.Item>]
+        :returns: tuple of (Set[Task <okami.Task>], List[Item <okami.Item>])
+        """
+        try:
+            if self.middlewares:
+                for middleware in reversed(self.middlewares):
+                    try:
+                        tasks, items = await middleware.after(task=task, response=response, tasks=tasks, items=items)
+                    except NotImplementedError:
+                        tasks, items = tasks, items
+                    await signals.spider_middleware_finished.send(
+                        sender=middleware, task=task, response=response, tasks=tasks, items=items
+                    )
+            return tasks, items
+        except Exception as e:
+            raise SpiderMiddlewareException(e) from e
+
+    async def finalise(self):
+        """
+        Finalises all registered spider middleware at the end of scraping process.
+        """
+        try:
+            if self.middlewares:
+                for middleware in reversed(self.middlewares):
+                    await middleware.finalise()
+                    await signals.spider_middleware_finalised.send(sender=middleware)
+        except Exception as e:
+            raise SpiderMiddlewareException(e) from e
+
 
 class Pipelines:
     def __init__(self, controller):
-        self.startup = StartupPipelines(controller=controller)
-        self.stats = StatsPipelines(controller=controller)
-        self.requests = RequestsPipelines(controller=controller)
-        self.responses = ResponsesPipelines(controller=controller)
-        self.items = ItemsPipelines(controller=controller)
-        self.tasks = TasksPipelines(controller=controller)
+        self.startup = StartupPipeline(controller=controller)
+        self.items = ItemsPipeline(controller=controller)
+        self.tasks = TasksPipeline(controller=controller)
+
+    async def initialise(self):
+        for pipeline in [self.startup, self.items, self.tasks]:
+            await pipeline.initialise()
+
+    async def finalise(self):
+        for pipeline in [self.startup, self.items, self.tasks]:
+            await pipeline.finalise()
 
 
 class Pipeline:
     """
-    Base :class:`Pipeline <okami.engine.Pipeline>` object
+    Base Pipeline <okami.engine.Pipeline>
 
-    :param controller: :class:`Controller <okami.engine.Controller>` object
+    :param controller: Controller <okami.engine.Controller>
     :ivar sources: merged tuple of registered pipelines
     :ivar cached: pipelines are lazily loaded and cached
     """
@@ -315,15 +433,21 @@ class Pipeline:
                 self.cached.append(instance)
         return self.cached
 
+    async def initialise(self):
+        raise NotImplementedError
+
     async def process(self, something):
         raise NotImplementedError
 
+    async def finalise(self):
+        raise NotImplementedError
 
-class StartupPipelines(Pipeline):
+
+class StartupPipeline(Pipeline):
     """
-    :class:`StartupPipeline <okami.engine.StartupPipeline>` object
+    StartupPipeline <okami.engine.StartupPipeline>
 
-    :param controller: :class:`Controller <okami.engine.Controller>` object
+    :param controller: Controller <okami.engine.Controller>
     :ivar sources: merged tuple of registered pipelines
     """
 
@@ -331,124 +455,57 @@ class StartupPipelines(Pipeline):
         super().__init__(controller)
         self.sources = settings.BASE_STARTUP_PIPELINE + settings.STARTUP_PIPELINE
 
-    async def process(self, spider):
+    async def initialise(self):
         """
-        Runs a :class:`Spider <okami.Spider>` object through all registered startup pipelines.
-        Only runs once, at start.
-
-        :param spider: :class:`Spider <okami.Spider>` object
-        :returns: :class:`Spider <okami.Spider>` object
+        Initialises all registered startup pipelines at the beginning of scraping process.
         """
         try:
             if self.pipelines:
-                await signals.startup_pipeline_started.send(sender=self, spider=spider)
                 for pipeline in self.pipelines:
-                    spider = await pipeline.process(spider)
-                await signals.startup_pipeline_finished.send(sender=self, spider=spider)
+                    await pipeline.initialise()
+                    await signals.startup_pipeline_initialised.send(sender=pipeline)
+        except Exception as e:
+            raise StartupPipelineException(e) from e
+
+    async def process(self, spider):
+        """
+        Runs a Spider <okami.Spider> through all registered startup pipelines.
+        Only runs once, at start.
+
+        :param spider: Spider <okami.Spider>
+        :returns: Spider <okami.Spider>
+        """
+        try:
+            if self.pipelines:
+                for pipeline in self.pipelines:
+                    await signals.startup_pipeline_started.send(sender=pipeline, spider=spider)
+                    try:
+                        spider = await pipeline.process(spider=spider)
+                    except NotImplementedError:
+                        spider = spider
+                    await signals.startup_pipeline_finished.send(sender=pipeline, spider=spider)
             return spider
         except Exception as e:
             raise StartupPipelineException(e) from e
 
-
-class StatsPipelines(Pipeline):
-    """
-    :class:`StatsPipeline <okami.engine.StatsPipeline>` object
-
-    :param controller: :class:`Controller <okami.engine.Controller>` object
-    :ivar sources: merged tuple of registered pipelines
-    """
-
-    def __init__(self, controller):
-        super().__init__(controller)
-        self.sources = settings.BASE_STATS_PIPELINE + settings.STATS_PIPELINE
-
-    async def process(self, stats):
+    async def finalise(self):
         """
-        Runs a :class:`Stats <okami.api.Stats>` object through all registered stats pipelines.
-        Runs for every request or less, depending on **settings.STATS_PIPELINE_FREQUENCY** setting.
-
-        :param stats: :class:`Stats <okami.api.Stats>` object
-        :returns: :class:`Stats <okami.api.Stats>` object
-        """
-        try:
-            if not self.controller.manager.iterations % settings.STATS_PIPELINE_FREQUENCY:
-                if self.pipelines:
-                    await signals.stats_pipeline_started.send(sender=self, stats=stats)
-                    for pipeline in self.pipelines:
-                        stats = await pipeline.process(stats)
-                    await signals.stats_pipeline_finished.send(sender=self, stats=stats)
-            return stats
-        except Exception as e:
-            raise StatsPipelineException(e) from e
-
-
-class RequestsPipelines(Pipeline):
-    """
-    :class:`RequestsPipelines <okami.engine.RequestsPipelines>` object
-
-    :param controller: :class:`Controller <okami.engine.Controller>` object
-    :ivar sources: merged tuple of registered pipelines
-    """
-
-    def __init__(self, controller):
-        super().__init__(controller)
-        self.sources = settings.BASE_REQUESTS_PIPELINE + settings.REQUESTS_PIPELINE
-
-    async def process(self, request):
-        """
-        Runs a :class:`Request <okami.api.Request>` object through all registered requests pipelines.
-        Runs for every request.
-
-        :param request: :class:`Request <okami.api.Request>` object
-        :returns: :class:`Request <okami.api.Request>` object
+        Finalises all registered startup pipelines at the end of scraping process.
         """
         try:
             if self.pipelines:
-                await signals.requests_pipeline_started.send(sender=self, request=request)
                 for pipeline in self.pipelines:
-                    request = await pipeline.process(request)
-                await signals.requests_pipeline_finished.send(sender=self, request=request)
-            return request
+                    await pipeline.finalise()
+                    await signals.startup_pipeline_finalised.send(sender=pipeline)
         except Exception as e:
-            raise RequestsPipelineException(e) from e
+            raise StartupPipelineException(e) from e
 
 
-class ResponsesPipelines(Pipeline):
+class ItemsPipeline(Pipeline):
     """
-    :class:`ResponsesPipelines <okami.engine.ResponsesPipelines>` object
+    ItemsPipeline <okami.engine.ItemsPipeline>
 
-    :param controller: :class:`Controller <okami.engine.Controller>` object
-    :ivar sources: merged tuple of registered pipelines
-    """
-
-    def __init__(self, controller):
-        super().__init__(controller)
-        self.sources = settings.BASE_RESPONSES_PIPELINE + settings.RESPONSES_PIPELINE
-
-    async def process(self, response):
-        """
-        Runs a :class:`Response <okami.api.Response>` object through all registered responses pipelines.
-        Runs for every request.
-
-        :param response: :class:`Response <okami.api.Response>` object
-        :returns: :class:`Response <okami.api.Response>` object
-        """
-        try:
-            if self.pipelines:
-                await signals.responses_pipeline_started.send(sender=self, response=response)
-                for pipeline in self.pipelines:
-                    response = await pipeline.process(response)
-                await signals.responses_pipeline_finished.send(sender=self, response=response)
-            return response
-        except Exception as e:
-            raise ResponsesPipelineException(e) from e
-
-
-class ItemsPipelines(Pipeline):
-    """
-    :class:`ItemsPipelines <okami.engine.ItemsPipelines>` object
-
-    :param controller: :class:`Controller <okami.engine.Controller>` object
+    :param controller: Controller <okami.engine.Controller>
     :ivar sources: merged tuple of registered pipelines
     """
 
@@ -456,30 +513,57 @@ class ItemsPipelines(Pipeline):
         super().__init__(controller)
         self.sources = settings.BASE_ITEMS_PIPELINE + settings.ITEMS_PIPELINE
 
-    async def process(self, items):
+    async def initialise(self):
         """
-        Runs a list of Item objects through all registered items pipelines.
-        Runs for every request.
-
-        :param items: (list) of :class:`Item <okami.Item>` objects
-        :returns: (list) of :class:`Item <okami.Item>` objects
+        Initialises all registered items pipelines at the beginning of scraping process.
         """
         try:
             if self.pipelines:
-                await signals.items_pipeline_started.send(sender=self, items=items)
                 for pipeline in self.pipelines:
-                    items = await pipeline.process(items)
-                await signals.items_pipeline_finished.send(sender=self, items=items)
+                    await pipeline.initialise()
+                    await signals.items_pipeline_initialised.send(sender=pipeline)
+        except Exception as e:
+            raise ItemsPipelineException(e) from e
+
+    async def process(self, items):
+        """
+        Runs a List[Item <okami.Item>] through all registered items pipelines.
+        Runs for every request.
+
+        :param items: List[Item <okami.Item>]
+        :returns: List[Item <okami.Item>]
+        """
+        try:
+            if self.pipelines:
+                for pipeline in self.pipelines:
+                    await signals.items_pipeline_started.send(sender=pipeline, items=items)
+                    try:
+                        items = await pipeline.process(items=items)
+                    except NotImplementedError:
+                        items = items
+                    await signals.items_pipeline_finished.send(sender=pipeline, items=items)
             return items
         except Exception as e:
             raise ItemsPipelineException(e) from e
 
+    async def finalise(self):
+        """
+        Finalises all registered tasks pipelines at the end of scraping process.
+        """
+        try:
+            if self.pipelines:
+                for pipeline in self.pipelines:
+                    await pipeline.finalise()
+                    await signals.items_pipeline_finalised.send(sender=pipeline)
+        except Exception as e:
+            raise ItemsPipelineException(e) from e
 
-class TasksPipelines(Pipeline):
+
+class TasksPipeline(Pipeline):
     """
-    :class:`TasksPipelines <okami.engine.TasksPipelines>` object
+    TasksPipeline <okami.engine.TasksPipeline>
 
-    :param controller: :class:`Controller <okami.engine.Controller>` object
+    :param controller: Controller <okami.engine.Controller>
     :ivar sources: merged tuple of registered pipelines
     """
 
@@ -487,20 +571,47 @@ class TasksPipelines(Pipeline):
         super().__init__(controller)
         self.sources = settings.BASE_TASKS_PIPELINE + settings.TASKS_PIPELINE
 
-    async def process(self, tasks):
+    async def initialise(self):
         """
-        Runs a list of :class:`Task <okami.Task>` objects through all registered tasks pipelines.
-        Runs for every request.
-
-        :param tasks: (list) of :class:`Task <okami.Task>` objects
-        :returns: (list) of :class:`Task <okami.Task>` objects
+        Initialises all registered tasks pipelines at the beginning of scraping process.
         """
         try:
             if self.pipelines:
-                await signals.tasks_pipeline_started.send(sender=self, tasks=tasks)
                 for pipeline in self.pipelines:
-                    tasks = await pipeline.process(tasks)
-                await signals.tasks_pipeline_finished.send(sender=self, tasks=tasks)
+                    await pipeline.initialise()
+                    await signals.tasks_pipeline_initialised.send(sender=pipeline)
+        except Exception as e:
+            raise TasksPipelineException(e) from e
+
+    async def process(self, tasks):
+        """
+        Runs a List[Task <okami.Task>`] through all registered tasks pipelines.
+        Runs for every request.
+
+        :param tasks: Set[Task <okami.Task>`]
+        :returns: Set[Task <okami.Task>`]
+        """
+        try:
+            if self.pipelines:
+                for pipeline in self.pipelines:
+                    await signals.tasks_pipeline_started.send(sender=pipeline, tasks=tasks)
+                    try:
+                        tasks = await pipeline.process(tasks=tasks)
+                    except NotImplementedError:
+                        tasks = tasks
+                    await signals.tasks_pipeline_finished.send(sender=pipeline, tasks=tasks)
             return tasks
+        except Exception as e:
+            raise TasksPipelineException(e) from e
+
+    async def finalise(self):
+        """
+        Finalises all registered tasks pipelines at the end of scraping process.
+        """
+        try:
+            if self.pipelines:
+                for pipeline in self.pipelines:
+                    await pipeline.finalise()
+                    await signals.tasks_pipeline_finalised.send(sender=pipeline)
         except Exception as e:
             raise TasksPipelineException(e) from e
