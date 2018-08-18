@@ -1,0 +1,1043 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="A high-level web scraping framework">
+      
+      
+        <link rel="canonical" href="https://okami.readthedocs.io/docs/cli/">
+      
+      
+        <meta name="author" content="ambrozic">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.1, mkdocs-material-3.0.3">
+    
+    
+      
+        <title>CLI - Okami</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application.451f80e5.css">
+      
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr.1aa3b519.js"></script>
+    
+    
+      <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+      
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,700|Source+Code+Pro">
+        <style>body,input{font-family:"Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Source Code Pro","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../assets/fonts/material-icons.css">
+    
+      <link rel="stylesheet" href="../../assets/styles.css">
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
+    viewBox="0 0 416 448" id="__github">
+  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
+        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
+        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
+        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
+        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
+        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
+        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
+        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
+        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
+        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
+        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
+        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
+        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
+        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
+        99.5z" />
+</svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="../../#cli" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="https://okami.readthedocs.io" title="Okami" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            
+              <span class="md-header-nav__topic">
+                Okami
+              </span>
+              <span class="md-header-nav__topic">
+                CLI
+              </span>
+            
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          
+            <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+          
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+
+  <a href="https://github.com/ambrozic/okami" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#__github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+        
+
+  
+
+<nav class="md-tabs md-tabs--active" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  <li class="md-tabs__item">
+    
+      <a href="../.." title="Introduction" class="md-tabs__link">
+        Introduction
+      </a>
+    
+  </li>
+
+      
+        
+      
+        
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="../architecture/" title="Documentation" class="md-tabs__link md-tabs__link--active">
+          Documentation
+        </a>
+      
+    </li>
+  
+
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </ul>
+  </div>
+</nav>
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="https://okami.readthedocs.io" title="Okami" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    Okami
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/ambrozic/okami" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#__github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Introduction" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../usage/" title="Usage" class="md-nav__link">
+      Usage
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+    
+    <label class="md-nav__link" for="nav-3">
+      Documentation
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/" title="Architecture" class="md-nav__link">
+      Architecture
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../spiders/" title="Spiders" class="md-nav__link">
+      Spiders
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../downloader/" title="Downloader" class="md-nav__link">
+      Downloader
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../middlewares/" title="Middlewares" class="md-nav__link">
+      Middlewares
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../pipelines/" title="Pipelines" class="md-nav__link">
+      Pipelines
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../signals/" title="Signals" class="md-nav__link">
+      Signals
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../server/" title="Server" class="md-nav__link">
+      Server
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../storage/" title="Storage" class="md-nav__link">
+      Storage
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../throttling/" title="Throttling" class="md-nav__link">
+      Throttling
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        CLI
+      </label>
+    
+    <a href="./" title="CLI" class="md-nav__link md-nav__link--active">
+      CLI
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#options" title="Options" class="md-nav__link">
+    Options
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" title="Commands" class="md-nav__link">
+    Commands
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start" title="Start" class="md-nav__link">
+    Start
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list" title="List" class="md-nav__link">
+    List
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#server" title="Server" class="md-nav__link">
+    Server
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process" title="Process" class="md-nav__link">
+    Process
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" title="Example" class="md-nav__link">
+    Example
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#server_1" title="Server" class="md-nav__link">
+    Server
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spider" title="Spider" class="md-nav__link">
+    Spider
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profile" title="Profile" class="md-nav__link">
+    Profile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shell" title="Shell" class="md-nav__link">
+    Shell
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../settings/" title="Settings" class="md-nav__link">
+      Settings
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../api/" title="API" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../contributing/" title="Contributing" class="md-nav__link">
+      Contributing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../releases/" title="Releases" class="md-nav__link">
+      Releases
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../license/" title="License" class="md-nav__link">
+      License
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../faq/" title="FAQ" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#options" title="Options" class="md-nav__link">
+    Options
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" title="Commands" class="md-nav__link">
+    Commands
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start" title="Start" class="md-nav__link">
+    Start
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list" title="List" class="md-nav__link">
+    List
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#server" title="Server" class="md-nav__link">
+    Server
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process" title="Process" class="md-nav__link">
+    Process
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" title="Example" class="md-nav__link">
+    Example
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#server_1" title="Server" class="md-nav__link">
+    Server
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spider" title="Spider" class="md-nav__link">
+    Spider
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profile" title="Profile" class="md-nav__link">
+    Profile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shell" title="Shell" class="md-nav__link">
+    Shell
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">#</a></h1>
+<p>This page of the documentation will explain okami command line interface or CLI.</p>
+<h2 id="options">Options<a class="headerlink" href="#options" title="Permanent link">#</a></h2>
+<ul>
+<li><code>-h / --help</code> print help or more information about each command</li>
+<li><code>-V / --version</code> print okami version</li>
+<li><code>-s / --setup</code> install okami bash completion</li>
+</ul>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">#</a></h2>
+<h3 id="start">Start<a class="headerlink" href="#start" title="Permanent link">#</a></h3>
+<p><mark>command</mark><code>okami start spider-name</code></p>
+<p>Runs okami application for a spider.</p>
+<div class="codehilite"><pre><span></span>$ okami start spider-name
+Okami: spider-name - <span class="nv">delta</span><span class="o">=</span><span class="m">0</span>.0001 <span class="nv">sleep</span><span class="o">=</span><span class="m">0</span>.0001 <span class="nv">time</span><span class="o">=</span><span class="m">0</span>.0002 <span class="nv">rps</span><span class="o">=</span><span class="m">0</span>.00   <span class="nv">i</span><span class="o">=</span><span class="m">0</span> - <span class="m">0</span>/1/0/0 - <span class="m">0</span>.02s
+Okami: spider-name - <span class="nv">delta</span><span class="o">=</span><span class="m">0</span>.0001 <span class="nv">sleep</span><span class="o">=</span><span class="m">0</span>.0001 <span class="nv">time</span><span class="o">=</span><span class="m">0</span>.0002 <span class="nv">rps</span><span class="o">=</span><span class="m">0</span>.00   <span class="nv">i</span><span class="o">=</span><span class="m">1</span> - <span class="m">43</span>/45/0/0 - <span class="m">0</span>.03s
+Okami: spider-name - <span class="nv">delta</span><span class="o">=</span><span class="m">0</span>.0108 <span class="nv">sleep</span><span class="o">=</span><span class="m">0</span>.0000 <span class="nv">time</span><span class="o">=</span><span class="m">0</span>.0109 <span class="nv">rps</span><span class="o">=</span><span class="m">91</span>.35  <span class="nv">i</span><span class="o">=</span><span class="m">2</span> - <span class="m">90</span>/93/0/0 - <span class="m">0</span>.04s
+...
+</pre></div>
+
+
+<h3 id="list">List<a class="headerlink" href="#list" title="Permanent link">#</a></h3>
+<p><mark>command</mark><code>okami list</code></p>
+<p>Lists available spiders in project.</p>
+<div class="codehilite"><pre><span></span>$ okami list
+
+Spiders <span class="o">(</span><span class="m">3</span><span class="o">)</span>
+  spider1  okami.spider1:spider1
+  spider2  okami.spider2:spider2
+  spider3  okami.spider2:spider3
+</pre></div>
+
+
+<h3 id="server">Server<a class="headerlink" href="#server" title="Permanent link">#</a></h3>
+<p><mark>command</mark><code>okami server</code></p>
+<p>Starts okami <a href="../server/">server</a>. Server, by default, can be accessed at <a href="http://localhost:5566">localhost:5566</a>. </p>
+<p>Use <a href="../settings/#http_server_address">HTTP_SERVER_ADDRESS</a> or command line arguments to define custom address and port.</p>
+<div class="codehilite"><pre><span></span>$ okami server
+Okami API Server at http://0.0.0.0:5566
+</pre></div>
+
+
+<p>Try an API HTTP call to okami server for <code>example.com</code> spider. Both <code>okami server</code> and <code>okami example server</code> should be running.</p>
+<div class="codehilite"><pre><span></span>$ http <span class="s1">&#39;http://localhost:5566/process/?name=example.com&amp;url=http://localhost:8000/men-backpacks/142000/&#39;</span>
+HTTP/1.1 <span class="m">200</span> OK
+Content-Length: <span class="m">776</span>
+Content-Type: application/json<span class="p">;</span> <span class="nv">charset</span><span class="o">=</span>utf-8
+Date: Fri, <span class="m">23</span> Dec <span class="m">2016</span> <span class="m">00</span>:00:00 GMT
+Server: Python/3.6 aiohttp/3.3.2
+
+<span class="o">[</span>
+    <span class="o">{</span>
+        <span class="s2">&quot;category&quot;</span>: <span class="s2">&quot;men-backpacks&quot;</span>,
+        <span class="s2">&quot;desc&quot;</span>: <span class="s2">&quot;some desc 142000&quot;</span>,
+        <span class="s2">&quot;iid&quot;</span>: <span class="m">142000</span>,
+        <span class="s2">&quot;images&quot;</span>: <span class="o">[</span>
+            <span class="s2">&quot;http://localhost:8000/images/name-4/4.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-5/5.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-6/6.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-7/7.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-8/8.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-9/9.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-10/10.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-11/11.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-12/12.png&quot;</span>
+        <span class="o">]</span>,
+        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;name 142000&quot;</span>,
+        <span class="s2">&quot;price&quot;</span>: <span class="m">48</span>.85,
+        <span class="s2">&quot;url&quot;</span>: <span class="s2">&quot;http://localhost:8000/men-backpacks/142000/&quot;</span>
+    <span class="o">}</span>
+<span class="o">]</span>
+</pre></div>
+
+
+<h3 id="process">Process<a class="headerlink" href="#process" title="Permanent link">#</a></h3>
+<p><mark>command</mark><code>okami process spider-name</code></p>
+<p>Process a single <em>url</em> for <em>spider-name</em> from command line. It is crucial during development of spiders to test page processing.</p>
+<div class="codehilite"><pre><span></span>$ okami process example.com http://localhost:8000/women-belts/251000/
+<span class="o">[</span>
+    <span class="o">{</span>
+        <span class="s2">&quot;category&quot;</span>: <span class="s2">&quot;women-belts&quot;</span>,
+        <span class="s2">&quot;desc&quot;</span>: <span class="s2">&quot;some desc 251000&quot;</span>,
+        <span class="s2">&quot;iid&quot;</span>: <span class="m">251000</span>,
+        <span class="s2">&quot;images&quot;</span>: <span class="o">[</span>
+            <span class="s2">&quot;http://localhost:8000/images/name-4/4.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-5/5.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-6/6.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-7/7.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-8/8.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-9/9.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-10/10.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-11/11.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-12/12.png&quot;</span>,
+            <span class="s2">&quot;http://localhost:8000/images/name-13/13.png&quot;</span>
+        <span class="o">]</span>,
+        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;name 251000&quot;</span>,
+        <span class="s2">&quot;price&quot;</span>: <span class="m">126</span>.64,
+        <span class="s2">&quot;url&quot;</span>: <span class="s2">&quot;http://localhost:8000/women-belts/251000/&quot;</span>
+    <span class="o">}</span>
+<span class="o">]</span>
+</pre></div>
+
+
+<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">#</a></h3>
+<h4 id="server_1">Server<a class="headerlink" href="#server_1" title="Permanent link">#</a></h4>
+<p><mark>command</mark><code>okami example server</code></p>
+<p>Runs example web server.</p>
+<div class="codehilite"><pre><span></span>$ okami example server
+Okami Example Server at http://localhost:8000/ - items: <span class="m">2184</span>, delay: <span class="m">0</span>.0
+</pre></div>
+
+
+<h4 id="spider">Spider<a class="headerlink" href="#spider" title="Permanent link">#</a></h4>
+<p><mark>command</mark><code>okami example spider</code></p>
+<p>Runs example spider. It will run against example web server and process some data so make sure example server is running as well.</p>
+<div class="codehilite"><pre><span></span>$ okami example spider
+Okami: example.com - <span class="nv">delta</span><span class="o">=</span><span class="m">0</span>.0001 <span class="nv">sleep</span><span class="o">=</span><span class="m">0</span>.0001 <span class="nv">time</span><span class="o">=</span><span class="m">0</span>.0002 <span class="nv">rps</span><span class="o">=</span><span class="m">0</span>.00   <span class="nv">i</span><span class="o">=</span><span class="m">0</span> - <span class="m">0</span>/1/0/0 - <span class="m">0</span>.02s
+Okami: example.com - <span class="nv">delta</span><span class="o">=</span><span class="m">0</span>.0001 <span class="nv">sleep</span><span class="o">=</span><span class="m">0</span>.0001 <span class="nv">time</span><span class="o">=</span><span class="m">0</span>.0002 <span class="nv">rps</span><span class="o">=</span><span class="m">0</span>.00   <span class="nv">i</span><span class="o">=</span><span class="m">1</span> - <span class="m">43</span>/45/0/0 - <span class="m">0</span>.03s
+Okami: example.com - <span class="nv">delta</span><span class="o">=</span><span class="m">0</span>.0108 <span class="nv">sleep</span><span class="o">=</span><span class="m">0</span>.0000 <span class="nv">time</span><span class="o">=</span><span class="m">0</span>.0109 <span class="nv">rps</span><span class="o">=</span><span class="m">91</span>.35  <span class="nv">i</span><span class="o">=</span><span class="m">2</span> - <span class="m">90</span>/93/0/0 - <span class="m">0</span>.04s
+...
+</pre></div>
+
+
+<h3 id="profile">Profile<a class="headerlink" href="#profile" title="Permanent link">#</a></h3>
+<p><mark>command</mark><code>okami server spider-name</code></p>
+<p>Profile application or spiders during development. It is using <code>cProfile</code>. Optionally, result can be exported into a file and used for more detailed analysis or visualisations.</p>
+<div class="codehilite"><pre><span></span>$ okami profile example.com
+
+  Settings:
+    OKAMI_SETTINGS: okami.cfg.example
+    LOOP: &lt;_UnixSelectorEventLoop <span class="nv">running</span><span class="o">=</span>False <span class="nv">closed</span><span class="o">=</span>False <span class="nv">debug</span><span class="o">=</span>False&gt;
+    DEBUG: False
+    SPIDERS: <span class="o">[</span><span class="s1">&#39;okami&#39;</span><span class="o">]</span>
+    STORAGE: okami.Storage
+    STORAGE_SETTINGS: <span class="o">{}</span>
+    CONN_MAX_CONCURRENT_REQUESTS: <span class="m">10</span>
+    REQUEST_MAX_FAILED: <span class="m">50</span>
+    REQUEST_MAX_PENDING: <span class="m">10</span>
+    THROTTLE: okami.Throttle
+    THROTTLE_SETTINGS: <span class="o">{</span><span class="s1">&#39;max_rps&#39;</span>: <span class="m">500</span><span class="o">}</span>
+    DELTA_ENABLED: False
+
+  Results:
+         <span class="m">4477750</span> <span class="k">function</span> calls <span class="o">(</span><span class="m">4472759</span> primitive calls<span class="o">)</span> in <span class="m">7</span>.558 seconds
+
+   Ordered by: cumulative <span class="nb">time</span>
+   List reduced from <span class="m">1159</span> to <span class="m">232</span> due to restriction &lt;<span class="m">0</span>.2&gt;
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno<span class="o">(</span><span class="k">function</span><span class="o">)</span>
+        <span class="m">1</span>    <span class="m">0</span>.000    <span class="m">0</span>.000    <span class="m">7</span>.561    <span class="m">7</span>.561 okami/engine.py:23<span class="o">(</span>start<span class="o">)</span>
+        <span class="m">1</span>    <span class="m">0</span>.000    <span class="m">0</span>.000    <span class="m">7</span>.559    <span class="m">7</span>.559 asyncio/base_events.py:432<span class="o">(</span>run_until_complete<span class="o">)</span>
+        <span class="m">1</span>    <span class="m">0</span>.011    <span class="m">0</span>.011    <span class="m">7</span>.559    <span class="m">7</span>.559 asyncio/base_events.py:404<span class="o">(</span>run_forever<span class="o">)</span>
+    <span class="m">15615</span>    <span class="m">0</span>.234    <span class="m">0</span>.000    <span class="m">7</span>.548    <span class="m">0</span>.000 asyncio/base_events.py:1335<span class="o">(</span>_run_once<span class="o">)</span>
+    <span class="m">15621</span>    <span class="m">0</span>.035    <span class="m">0</span>.000    <span class="m">6</span>.325    <span class="m">0</span>.000 asyncio/events.py:143<span class="o">(</span>_run<span class="o">)</span>
+     <span class="m">4462</span>    <span class="m">0</span>.044    <span class="m">0</span>.000    <span class="m">5</span>.883    <span class="m">0</span>.001 okami/engine.py:96<span class="o">(</span>process<span class="o">)</span>
+     <span class="m">2229</span>    <span class="m">0</span>.125    <span class="m">0</span>.000    <span class="m">3</span>.700    <span class="m">0</span>.002 okami/api.py:43<span class="o">(</span>process<span class="o">)</span>
+     <span class="m">2229</span>    <span class="m">0</span>.822    <span class="m">0</span>.000    <span class="m">2</span>.619    <span class="m">0</span>.001 okami/api.py:72<span class="o">(</span>tasks<span class="o">)</span>
+     <span class="m">4462</span>    <span class="m">0</span>.040    <span class="m">0</span>.000    <span class="m">1</span>.803    <span class="m">0</span>.000 okami/api.py:99<span class="o">(</span>process<span class="o">)</span>
+     <span class="m">4462</span>    <span class="m">0</span>.010    <span class="m">0</span>.000    <span class="m">1</span>.513    <span class="m">0</span>.000 aiohttp/client.py:842<span class="o">(</span>__aenter__<span class="o">)</span>
+     <span class="m">4462</span>    <span class="m">0</span>.094    <span class="m">0</span>.000    <span class="m">1</span>.502    <span class="m">0</span>.000 aiohttp/client.py:222<span class="o">(</span>_request<span class="o">)</span>
+     <span class="m">4458</span>    <span class="m">1</span>.075    <span class="m">0</span>.000    <span class="m">1</span>.086    <span class="m">0</span>.000 lxml/html/__init__.py:759<span class="o">(</span>document_fromstring<span class="o">)</span>
+     <span class="m">4458</span>    <span class="m">0</span>.149    <span class="m">0</span>.000    <span class="m">1</span>.008    <span class="m">0</span>.000 okami/api.py:83<span class="o">(</span>&lt;setcomp&gt;<span class="o">)</span>
+     <span class="m">2229</span>    <span class="m">0</span>.393    <span class="m">0</span>.000    <span class="m">0</span>.969    <span class="m">0</span>.000 okami/example.py:32<span class="o">(</span>items<span class="o">)</span>
+    <span class="m">15617</span>    <span class="m">0</span>.045    <span class="m">0</span>.000    <span class="m">0</span>.944    <span class="m">0</span>.000 selectors.py:572<span class="o">(</span><span class="k">select</span><span class="o">)</span>
+    <span class="m">15623</span>    <span class="m">0</span>.885    <span class="m">0</span>.000    <span class="m">0</span>.885    <span class="m">0</span>.000 <span class="o">{</span>method <span class="s1">&#39;control&#39;</span> of <span class="s1">&#39;select.kqueue&#39;</span> objects<span class="o">}</span>
+   <span class="m">100260</span>    <span class="m">0</span>.087    <span class="m">0</span>.000    <span class="m">0</span>.538    <span class="m">0</span>.000 okami/utils.py:23<span class="o">(</span>parse_domain_url<span class="o">)</span>
+   <span class="m">204986</span>    <span class="m">0</span>.403    <span class="m">0</span>.000    <span class="m">0</span>.403    <span class="m">0</span>.000 <span class="o">{</span>method <span class="s1">&#39;match&#39;</span> of <span class="s1">&#39;_sre.SRE_Pattern&#39;</span> objects<span class="o">}</span>
+   ...
+</pre></div>
+
+
+<h3 id="shell">Shell<a class="headerlink" href="#shell" title="Permanent link">#</a></h3>
+<p><mark>command</mark><code>okami shell</code></p>
+<p>Just because. And it requires <a href="https://ipython.org/">IPython</a> to be installed.</p>
+<div class="codehilite"><pre><span></span>$ okami shell
+
+     ██████╗ ██╗  ██╗ █████╗ ███╗   ███╗██╗
+    ██╔═══██╗██║ ██╔╝██╔══██╗████╗ ████║██║
+    ██║   ██║█████╔╝ ███████║██╔████╔██║██║
+    ██║   ██║██╔═██╗ ██╔══██║██║╚██╔╝██║██║
+    ╚██████╔╝██║  ██╗██║  ██║██║ ╚═╝ ██║██║
+     ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝
+    shell
+
+Python <span class="m">3</span>.6.0 <span class="o">(</span>default, Dec <span class="m">23</span>, <span class="m">2016</span>, <span class="m">00</span>:00:00<span class="o">)</span>
+Type <span class="s1">&#39;copyright&#39;</span>, <span class="s1">&#39;credits&#39;</span> or <span class="s1">&#39;license&#39;</span> <span class="k">for</span> more information
+IPython <span class="m">6</span>.5.0 -- An enhanced Interactive Python. Type <span class="s1">&#39;?&#39;</span> <span class="k">for</span> help.
+In <span class="o">[</span><span class="m">1</span><span class="o">]</span>:
+</pre></div>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../throttling/" title="Throttling" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Throttling
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../settings/" title="Settings" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Settings
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2018 ambrozic
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application.583bbe55.js"></script>
+      
+      <script>app.initialize({version:"1.0.1",url:{base:"../.."}})</script>
+      
+    
+    
+      
+    
+  </body>
+</html>

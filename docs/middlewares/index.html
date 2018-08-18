@@ -1,0 +1,872 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="A high-level web scraping framework">
+      
+      
+        <link rel="canonical" href="https://okami.readthedocs.io/docs/middlewares/">
+      
+      
+        <meta name="author" content="ambrozic">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.1, mkdocs-material-3.0.3">
+    
+    
+      
+        <title>Middlewares - Okami</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application.451f80e5.css">
+      
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr.1aa3b519.js"></script>
+    
+    
+      <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+      
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,700|Source+Code+Pro">
+        <style>body,input{font-family:"Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Source Code Pro","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../assets/fonts/material-icons.css">
+    
+      <link rel="stylesheet" href="../../assets/styles.css">
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
+    viewBox="0 0 416 448" id="__github">
+  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
+        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
+        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
+        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
+        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
+        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
+        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
+        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
+        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
+        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
+        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
+        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
+        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
+        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
+        99.5z" />
+</svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="../../#middlewares" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="https://okami.readthedocs.io" title="Okami" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            
+              <span class="md-header-nav__topic">
+                Okami
+              </span>
+              <span class="md-header-nav__topic">
+                Middlewares
+              </span>
+            
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          
+            <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+          
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+
+  <a href="https://github.com/ambrozic/okami" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#__github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+        
+
+  
+
+<nav class="md-tabs md-tabs--active" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  <li class="md-tabs__item">
+    
+      <a href="../.." title="Introduction" class="md-tabs__link">
+        Introduction
+      </a>
+    
+  </li>
+
+      
+        
+      
+        
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="../architecture/" title="Documentation" class="md-tabs__link md-tabs__link--active">
+          Documentation
+        </a>
+      
+    </li>
+  
+
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </ul>
+  </div>
+</nav>
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="https://okami.readthedocs.io" title="Okami" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    Okami
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/ambrozic/okami" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#__github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Introduction" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../usage/" title="Usage" class="md-nav__link">
+      Usage
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+    
+    <label class="md-nav__link" for="nav-3">
+      Documentation
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/" title="Architecture" class="md-nav__link">
+      Architecture
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../spiders/" title="Spiders" class="md-nav__link">
+      Spiders
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../downloader/" title="Downloader" class="md-nav__link">
+      Downloader
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Middlewares
+      </label>
+    
+    <a href="./" title="Middlewares" class="md-nav__link md-nav__link--active">
+      Middlewares
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#http-middleware" title="Http middleware" class="md-nav__link">
+    Http middleware
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialise" title="Initialise" class="md-nav__link">
+    Initialise
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#before" title="Before" class="md-nav__link">
+    Before
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#after" title="After" class="md-nav__link">
+    After
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finalise" title="Finalise" class="md-nav__link">
+    Finalise
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spider-middleware" title="Spider middleware" class="md-nav__link">
+    Spider middleware
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialise_1" title="Initialise" class="md-nav__link">
+    Initialise
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#before_1" title="Before" class="md-nav__link">
+    Before
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#after_1" title="After" class="md-nav__link">
+    After
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finalise_1" title="Finalise" class="md-nav__link">
+    Finalise
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../pipelines/" title="Pipelines" class="md-nav__link">
+      Pipelines
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../signals/" title="Signals" class="md-nav__link">
+      Signals
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../server/" title="Server" class="md-nav__link">
+      Server
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../storage/" title="Storage" class="md-nav__link">
+      Storage
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../throttling/" title="Throttling" class="md-nav__link">
+      Throttling
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cli/" title="CLI" class="md-nav__link">
+      CLI
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../settings/" title="Settings" class="md-nav__link">
+      Settings
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../api/" title="API" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../contributing/" title="Contributing" class="md-nav__link">
+      Contributing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../releases/" title="Releases" class="md-nav__link">
+      Releases
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../license/" title="License" class="md-nav__link">
+      License
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../faq/" title="FAQ" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#http-middleware" title="Http middleware" class="md-nav__link">
+    Http middleware
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialise" title="Initialise" class="md-nav__link">
+    Initialise
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#before" title="Before" class="md-nav__link">
+    Before
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#after" title="After" class="md-nav__link">
+    After
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finalise" title="Finalise" class="md-nav__link">
+    Finalise
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spider-middleware" title="Spider middleware" class="md-nav__link">
+    Spider middleware
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialise_1" title="Initialise" class="md-nav__link">
+    Initialise
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#before_1" title="Before" class="md-nav__link">
+    Before
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#after_1" title="After" class="md-nav__link">
+    After
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finalise_1" title="Finalise" class="md-nav__link">
+    Finalise
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="middlewares">Middlewares<a class="headerlink" href="#middlewares" title="Permanent link">#</a></h1>
+<p>Middleware is a recursive or two-way chain of processing elements. Input object is processed in a forward way and passed between middlewares and used to generate a result. Result is then processed backward and passed between middlewares in reverse order into final output object.</p>
+<p>Exceptions during middleware exceptions are important. Every middleware can raise an exception which terminates entire chain. If this is not a desirable option, middleware should catch and log or ignore exceptions.</p>
+<p>Okami runs several middlewares during spider initialisation and page processing cycle. There are several built-in middlewares and you can define your own middlewares.</p>
+<p>For a more visual representation on how middlewares are involved in processing cycle, check <a href="../architecture/#schema">schema</a> on architecture page.</p>
+<h2 id="http-middleware">Http middleware<a class="headerlink" href="#http-middleware" title="Permanent link">#</a></h2>
+<p>Http middleware wraps request/response and downloader cycle and runs for every page. Middlewares are defined as a tuple in <a href="../settings/">settings</a> as <a href="../settings/#base_http_middleware">BASE_HTTP_MIDDLEWARE</a> and <a href="../settings/#http_middleware">HTTP_MIDDLEWARE</a> and merged into a single tuple. First are executed <em>BASE_HTTP_MIDDLEWARE</em>, following are custom ones defined in <em>HTTP_MIDDLEWARE</em>.</p>
+<p>All phases involved in http middleware are described below.</p>
+<h3 id="initialise">Initialise<a class="headerlink" href="#initialise" title="Permanent link">#</a></h3>
+<p>Executes middleware <code>initialise</code> method at the beginning of scraping process when okami starts.</p>
+<h3 id="before">Before<a class="headerlink" href="#before" title="Permanent link">#</a></h3>
+<p>During before phase, middleware elements are executed in same order as defined in a tuple and are passed <a href="../api/#request">Request</a> object. HttpMiddleware <code>before</code> method is called to process <a href="../api/#request">Request</a> object.</p>
+<p>Final <a href="../api/#request">Request</a> object is used by <a href="../api/#downloader">Downloader</a> to create a <a href="../api/#response">Response</a> object.</p>
+<h3 id="after">After<a class="headerlink" href="#after" title="Permanent link">#</a></h3>
+<p><a href="../api/#response">Response</a> is passed in after phase to middleware elements executed now in reverse order as defined in tuple. HttpMiddleware <code>after</code> method is called to process passed objects.</p>
+<p>Final <a href="../api/#response">Response</a> object is then used for actual data processing.</p>
+<h3 id="finalise">Finalise<a class="headerlink" href="#finalise" title="Permanent link">#</a></h3>
+<p>Executes http middleware <code>finalise</code> method at the end of scraping process just before okami terminates.</p>
+<h2 id="spider-middleware">Spider middleware<a class="headerlink" href="#spider-middleware" title="Permanent link">#</a></h2>
+<p>Spider middleware wraps spider cycle and runs for every page. Middlewares are defined as a tuple in <a href="../settings/">settings</a> as <a href="../settings/#base_spider_middleware">BASE_SPIDER_MIDDLEWARE</a> and <a href="../settings/#SPIDER_MIDDLEWARE">SPIDER_MIDDLEWARE</a> and merged into a single tuple. First are executed <em>BASE_SPIDER_MIDDLEWARE</em>, following are custom ones defined in <em>SPIDER_MIDDLEWARE</em>.</p>
+<p>All phases involved in spider middleware are described below.</p>
+<h3 id="initialise_1">Initialise<a class="headerlink" href="#initialise_1" title="Permanent link">#</a></h3>
+<p>Executes middleware <code>initialise</code> method at the beginning of scraping process when okami starts.</p>
+<h3 id="before_1">Before<a class="headerlink" href="#before_1" title="Permanent link">#</a></h3>
+<p>During before phase, middleware elements are executed in same order as defined in a tuple and are passed <a href="../api/#task">Task</a>, <a href="../api/#response">Response</a> object. SpiderMiddleware <code>before</code> method is called to process <a href="../api/#response">Response</a> object.</p>
+<p>Final <a href="../api/#request">Request</a> object is used by <a href="../api/#spider">Spider</a> to create a list of <a href="../api/#task">Task</a> and a list of <a href="../api/#item">Item</a> objects.</p>
+<h3 id="after_1">After<a class="headerlink" href="#after_1" title="Permanent link">#</a></h3>
+<p><a href="../api/#task">Task</a>, <a href="../api/#response">Response</a>, a list of <a href="../api/#task">Task</a> and a list of <a href="../api/#item">Item</a> objects are passed in after phase to middleware elements executed now in reverse order as defined in tuple. SpiderMiddleware <code>after</code> is method called to process passed object.</p>
+<p>Final passed objects are then used in further request/response and downloader cycle as well as in <code>TasksPipeline &lt;okami.engine.TasksPipeline&gt;</code> and <code>ItemsPipeline &lt;okami.engine.ItemsPipeline&gt;</code>.</p>
+<h3 id="finalise_1">Finalise<a class="headerlink" href="#finalise_1" title="Permanent link">#</a></h3>
+<p>Executes spider middleware <code>finalise</code> method at the end of scraping process just before okami terminates.</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../downloader/" title="Downloader" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Downloader
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../pipelines/" title="Pipelines" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Pipelines
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2018 ambrozic
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application.583bbe55.js"></script>
+      
+      <script>app.initialize({version:"1.0.1",url:{base:"../.."}})</script>
+      
+    
+    
+      
+    
+  </body>
+</html>
