@@ -1,92 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-     <loc>https://okami.readthedocs.io/</loc>
+     <loc>https://ambrozic.github.io/okami/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/usage/</loc>
+     <loc>https://ambrozic.github.io/okami/usage/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/architecture/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/architecture/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/spiders/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/spiders/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/downloader/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/downloader/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/middlewares/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/middlewares/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/pipelines/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/pipelines/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/signals/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/signals/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/server/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/server/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/storage/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/storage/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/throttling/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/throttling/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/cli/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/cli/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/settings/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/settings/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/docs/api/</loc>
+     <loc>https://ambrozic.github.io/okami/docs/api/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/contributing/</loc>
+     <loc>https://ambrozic.github.io/okami/contributing/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/releases/</loc>
+     <loc>https://ambrozic.github.io/okami/releases/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/license/</loc>
+     <loc>https://ambrozic.github.io/okami/license/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>https://okami.readthedocs.io/faq/</loc>
+     <loc>https://ambrozic.github.io/okami/faq/</loc>
      <lastmod>2018-08-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
